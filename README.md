@@ -40,8 +40,7 @@ bash
 Copy
 Edit
 npm start
-4. Open your browser:
-Go to http://localhost:3000 to view the app.
+4. Open your browser
 
 Usage
 Adding a New User
