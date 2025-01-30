@@ -7,34 +7,43 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const UserManagement = () => {
+  // State to store users
   const [users, setUsers] = useState([]);
+  // State to manage modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // State to store the selected user for editing
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Fetch users when component mounts
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Function to fetch users from API
   const fetchUsers = async () => {
     const data = await getUsers();
     setUsers(data);
   };
 
+  // Function to open modal for editing an existing user
   const handleEdit = (user) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
+  // Function to open modal for adding a new user
   const handleAdd = () => {
     setSelectedUser(null);
     setIsModalOpen(true);
   };
 
+  // Function to delete a user
   const handleDelete = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
       await deleteUser(userId);
+      // Update the UI by removing the deleted user
       setUsers(users.filter((user) => user.id !== userId));
       toast.success("User deleted successfully!");
     } catch (error) {
@@ -43,10 +52,11 @@ const UserManagement = () => {
     }
   };
 
+  // Function to handle saving a user (add or edit)
   const handleUserSaved = (savedUser) => {
     console.log("User saved:", savedUser);
     if (selectedUser) {
-      // ✅ Update existing user
+      // Update existing user
       editUser(selectedUser.id, savedUser)
         .then(() => {
           setUsers((prevUsers) =>
@@ -61,8 +71,8 @@ const UserManagement = () => {
           toast.error("Error updating user. Please try again.");
         });
     } else {
-      // ✅ Add new user (generate fake ID)
-      const newUser = { ...savedUser, id: users.length + 1 };
+      // Add new user
+      const newUser = { ...savedUser, id: users.length + 1 }; // Generate fake ID for frontend
       console.log("New user:", newUser);
       addUser(savedUser)
         .then(() => {
@@ -75,12 +85,14 @@ const UserManagement = () => {
         });
     }
 
+    // Close the modal after saving
     setIsModalOpen(false);
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">User Management</h1>
+
       {/* Add User Button */}
       <button
         onClick={handleAdd}
@@ -88,7 +100,8 @@ const UserManagement = () => {
       >
         Add User
       </button>
-      {/* User Cards */}
+
+      {/* User Cards Display */}
       <div className="flex flex-wrap gap-6">
         {users.map((user) => (
           <UserCard
@@ -99,7 +112,8 @@ const UserManagement = () => {
           />
         ))}
       </div>
-      {/* Modal */}
+
+      {/* Modal for Adding/Editing Users */}
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <h2 className="text-lg font-bold mb-4">
@@ -108,10 +122,12 @@ const UserManagement = () => {
           <AddEditUserForm
             user={selectedUser}
             onClose={() => setIsModalOpen(false)}
-            onUserSaved={handleUserSaved} //
+            onUserSaved={handleUserSaved}
           />
         </Modal>
       )}
+
+      {/* Toast Notifications */}
       <ToastContainer />
     </div>
   );
